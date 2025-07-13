@@ -1,106 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deming Funnel Experiment Simulation</title>
+  <title>Deming Funnel Thought-Experiment Simulator</title>
   <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    #layout {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    #sidebar {
-      width: 260px;
-      padding: 16px;
-      box-sizing: border-box;
-      border-right: 1px solid #ccc;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      overflow-y: auto;
-    }
-
-    #controls {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    #controls label {
-      display: flex;
-      flex-direction: column;
-      font-size: 14px;
-    }
-
-    #controls input,
-    #controls select {
-      width: 100%;
-      margin-top: 4px;
-      box-sizing: border-box;
-    }
-
-    #controls button {
-      width: 100%;
-    }
-
-    #stats {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    #stats h2 {
-      margin-top: 0;
-      font-size: 16px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 4px;
-    }
-
-    .stat-entry {
-      margin-bottom: 12px;
-    }
-
-    .entry-title {
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    #visuals {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 16px;
-      overflow: auto;
-    }
-
-    #canvas {
-      border: 1px solid #ccc;
-      margin-bottom: 16px;
-    }
-
-    #plotlyHistogram {
-      width: 100%;
-      max-width: 600px;
-      height: 400px;
-    }
+    body { font-family: sans-serif; margin:0; padding:0; display:flex; flex-direction:column; height:100vh; }
+    #layout { display:flex; flex:1; }
+    #sidebar { width:260px; padding:16px; border-right:1px solid #ccc; overflow-y:auto; }
+    #controls { display:flex; flex-direction:column; gap:12px; }
+    #controls label { font-size:14px; }
+    #controls input[type=range], #controls input[type=number], #controls select { width:100%; margin-top:4px; }
+    #controls button { width:100%; }
+    #stats { margin-top:24px; }
+    #stats h2 { margin:0 0 8px; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:4px; }
+    .stat-entry { margin-bottom:12px; font-size:14px; }
+    .entry-title { font-weight:bold; }
+    #visuals { flex:1; padding:16px; overflow:auto; text-align:center; }
+    #mainTitle { font-size:24px; margin:0 0 16px; }
+    #canvas { border:1px solid #ccc; }
+    #plotlyHistogram { margin-top:16px; width:100%; max-width:600px; height:400px; }
   </style>
 </head>
-
 <body>
   <div id="layout">
     <div id="sidebar">
@@ -113,121 +35,69 @@
             <option value="4">Rule 4: Follow Last Drop</option>
           </select>
         </label>
-        <label>Noise σ:
-          <input type="range" id="sigma" min="1" max="100" value="20">
-          <span id="sigmaValue">20</span>
-        </label>
+        <label>Noise σ:<input type="range" id="sigma" min="1" max="100" value="20"></label>
+        <div><span>σ = </span><span id="sigmaValue">20</span></div>
         <label>Noise Model:
           <select id="noiseModel">
             <option value="gaussian">Gaussian</option>
             <option value="truncated_drift">Truncated Gaussian + Drift</option>
           </select>
         </label>
-        <label>Drops:
-          <input type="number" id="drops" value="100" min="1">
-        </label>
-        <label>Interval (ms):
-          <input type="number" id="interval" value="45" min="10">
-        </label>
+        <label>Drops:<input type="number" id="drops" min="1" value="100"></label>
+        <label>Interval (ms):<input type="number" id="interval" min="10" value="45"></label>
         <label><input type="checkbox" id="showFunnel"> Show Funnel Position</label>
         <button id="startBtn">Start</button>
         <button id="pauseBtn">Pause</button>
         <button id="resetBtn">Reset</button>
       </div>
-      <div id="stats">
-        <h2>Run Statistics</h2>
-      </div>
+      <div id="stats"><h2>Run Statistics</h2></div>
     </div>
     <div id="visuals">
+      <h1 id="mainTitle">Deming Funnel Thought-Experiment Simulator</h1>
       <canvas id="canvas" width="600" height="600"></canvas>
       <div id="plotlyHistogram"></div>
     </div>
   </div>
-
   <script>
     const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
-    const statsDiv = document.getElementById('stats');
+    const sigmaSlider = document.getElementById('sigma'), sigmaValue = document.getElementById('sigmaValue');
+    const startBtn = document.getElementById('startBtn'), pauseBtn = document.getElementById('pauseBtn'), resetBtn = document.getElementById('resetBtn');
+    const ruleSelect = document.getElementById('rule'), noiseModelSelect = document.getElementById('noiseModel');
+    const dropsInput = document.getElementById('drops'), intervalInput = document.getElementById('interval');
     const showFunnelCheckbox = document.getElementById('showFunnel');
-    let showFunnel = false;
-    const target = { x: canvas.width / 2, y: canvas.height / 2 };
-    let funnel = { ...target }, hits = [];
-    let currentDrop = 0, totalDrops = 0, intervalId = null, currentRule = '1';
-    const colors = { '1': '#1f77b4', '2': '#ff7f0e', '3': '#2ca02c', '4': '#d62728' };
-    const ruleNames = { '1': 'Rule 1', '2': 'Rule 2', '3': 'Rule 3', '4': 'Rule 4' };
-    const allDistances = { '1': [], '2': [], '3': [], '4': [] };
-    let drift = { x: 0, y: 0 };
+    const statsDiv = document.getElementById('stats');
+    let showFunnel=false;
+    showFunnelCheckbox.addEventListener('change',e=>showFunnel=e.target.checked);
+    sigmaSlider.addEventListener('input',()=>sigmaValue.textContent=sigmaSlider.value);
+    startBtn.addEventListener('click', start);
+    pauseBtn.addEventListener('click', pause);
+    resetBtn.addEventListener('click', reset);
 
-    showFunnelCheckbox.addEventListener('change', e => showFunnel = e.target.checked);
-    document.getElementById('startBtn').addEventListener('click', start);
-    document.getElementById('pauseBtn').addEventListener('click', pause);
-    document.getElementById('resetBtn').addEventListener('click', reset);
-    document.getElementById('sigma').addEventListener('input', e => document.getElementById('sigmaValue').textContent = e.target.value);
+    const target = {x:canvas.width/2,y:canvas.height/2};
+    let funnel={...target}, hits=[], currentDrop, totalDrops, intervalId, currentRule;
+    const colors={'1':'#1f77b4','2':'#ff7f0e','3':'#2ca02c','4':'#d62728'};
+    const ruleNames={'1':'Rule 1','2':'Rule 2','3':'Rule 3','4':'Rule 4'};
+    const allDistances={'1':[],'2':[],'3':[],'4':[]};
+    let drift={x:0,y:0};
 
-    // Simulates marble drops using a Gaussian distribution
-    function gaussian(mean = 0, sd = 1) {
-      let u = 1 - Math.random(), v = 1 - Math.random();
-      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v) * sd + mean;
-    }
+    function gaussian(mean=0,sd=1){let u=1-Math.random(),v=1-Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)*sd+mean;}
+    function truncatedGaussian(mean,sd,maxStd=3){let val;do{val=gaussian(mean,sd);}while(Math.abs(val-mean)>maxStd*sd);return val;}
+    function driftedNoise(baseSD){drift.x+=truncatedGaussian(0,0.1,2);drift.y+=truncatedGaussian(0,0.1,2);return{x:drift.x+truncatedGaussian(0,baseSD,3),y:drift.y+truncatedGaussian(0,baseSD,3)};}
 
-    // Simulates more realistic marble drops using a truncated Gaussian distribution.
-    // This will promote more wild one-offs, rolls, etc. that better approximate the 
-    // real-world experiment. At least, as I've run it in the past...
-    function truncatedGaussian(mean = 0, sd = 1, maxStd = 3) {
-      let val;
-      do { val = gaussian(mean, sd); } while (Math.abs(val - mean) > maxStd * sd);
-      return val;
-    }
-
-    // This adds "noise" to simulate random walks/drifts of the marble
-    function driftedNoise(baseSD) {
-      drift.x += truncatedGaussian(0, 0.1, 2);
-      drift.y += truncatedGaussian(0, 0.1, 2);
-      return { x: drift.x + truncatedGaussian(0, baseSD, 3), y: drift.y + truncatedGaussian(0, baseSD, 3) };
-    }
-
-    // Draw the target reticle
-    function drawTarget() {
-      ctx.strokeStyle = 'red';
-      ctx.beginPath();
-      ctx.moveTo(target.x - 10, target.y); ctx.lineTo(target.x + 10, target.y);
-      ctx.moveTo(target.x, target.y - 10); ctx.lineTo(target.x, target.y + 10);
-      ctx.stroke();
-    }
-
-    // Funnel plotting routines
-    function drawFunnel() { if (!showFunnel) return; ctx.strokeStyle = colors[currentRule]; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.arc(funnel.x, funnel.y, 10, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]); }
-    function drawHit(h) { ctx.fillStyle = colors[currentRule]; ctx.beginPath(); ctx.arc(h.x, h.y, 4, 0, 2 * Math.PI); ctx.fill(); }
-    function moveFunnel(h) { switch (currentRule) { case '2': funnel.x += target.x - h.x; funnel.y += target.y - h.y; break; case '3': funnel.x = 2 * target.x - h.x; funnel.y = 2 * target.y - h.y; break; case '4': funnel.x = h.x; funnel.y = h.y; break } }
-    function drawEnclosingCircle() { if (!hits.length) return; const m = Math.max(...hits.map(h => Math.hypot(h.x - target.x, h.y - target.y))); ctx.strokeStyle = colors[currentRule]; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(target.x, target.y, m, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = colors[currentRule]; ctx.font = '14px sans-serif'; ctx.textAlign = 'center'; let lx, ly; if (currentRule === '1') { lx = target.x; ly = target.y - m - 12; ctx.textBaseline = 'bottom'; } else if (currentRule === '2') { lx = target.x + m + 12; ly = target.y; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; } else if (currentRule === '3') { lx = target.x; ly = target.y + m + 12; ctx.textBaseline = 'top'; } else { lx = target.x - m - 12; ly = target.y; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; } ctx.fillText(`⌀ ${(2 * m).toFixed(1)}`, lx, ly); }
-    function computeStats() { const d = hits.map(h => Math.hypot(h.x - target.x, h.y - target.y)); const mean = d.reduce((a, b) => a + b, 0) / d.length; const varc = d.reduce((a, b) => a + (b - mean) ** 2, 0) / d.length; const sd = Math.sqrt(varc), max = Math.max(...d); const pct1 = (d.filter(v => v <= sd).length / d.length * 100).toFixed(1); const pct2 = (d.filter(v => v <= 2 * sd).length / d.length * 100).toFixed(1); return { mean, sd, max, pct1, pct2 }; }
-    
-    // Show the distribution chart
-    function updatePlot() {
-      const traces = []; for (let r in allDistances) { if (allDistances[r].length) { traces.push({ x: allDistances[r], type: 'histogram', opacity: 0.5, name: ruleNames[r], marker: { color: colors[r] }, autobinx: false, xbins: { start: 0, end: Math.max(...allDistances[r]), size: 1 } }); } }; Plotly.newPlot('plotlyHistogram', traces, {
-        barmode: 'overlay',
-        title: 'Distribution of Marble Distances',
-        width: 600,
-        height: 400
-      });
-    }
-
-    // Drop the marble and update
-    function dropMarble() { if (currentDrop >= totalDrops) { clearInterval(intervalId); drawEnclosingCircle(); allDistances[currentRule] = hits.map(h => Math.hypot(h.x - target.x, h.y - target.y)); updatePlot(); recordStats(); return; } drawFunnel(); const sigma = parseFloat(document.getElementById('sigma').value); const noiseModel = document.getElementById('noiseModel').value; let dx, dy; if (noiseModel === 'truncated_drift') { const d = driftedNoise(sigma); dx = d.x; dy = d.y; } else { dx = gaussian(0, sigma); dy = gaussian(0, sigma); } const hit = { x: funnel.x + dx, y: funnel.y + dy }; hits.push(hit); drawHit(hit); moveFunnel(hit); currentDrop++; }
-    function recordStats() { const s = computeStats(); const e = document.createElement('div'); e.className = 'stat-entry'; e.innerHTML = `<div class='entry-title' style='color:${colors[currentRule]}'>${ruleNames[currentRule]}</div><div>Mean: ${s.mean.toFixed(1)}</div><div>SD: ${s.sd.toFixed(1)}</div><div>Max: ${s.max.toFixed(1)}</div><div>% ≤1σ: ${s.pct1}%</div><div>% ≤2σ: ${s.pct2}%</div>`; statsDiv.appendChild(e); }
-    
-    // UI Handlers
-    function start() { if (intervalId) clearInterval(intervalId); currentRule = document.getElementById('rule').value; totalDrops = parseInt(document.getElementById('drops').value, 10); currentDrop = 0; hits = []; funnel = { ...target }; allDistances[currentRule] = []; drawTarget(); intervalId = setInterval(dropMarble, parseInt(document.getElementById('interval').value, 10)); }
-    function pause() { if (intervalId) clearInterval(intervalId); }
-    function reset() {
-      if (intervalId) clearInterval(intervalId); currentDrop = 0; hits = []; funnel = { ...target }; ctx.clearRect(0, 0, canvas.width, canvas.height); for (let r in allDistances) allDistances[r] = []; // Reinitialize Plotly chart to empty with fixed size
-      Plotly.newPlot('plotlyHistogram', [], {
-        title: 'Distribution of Marble Distances',
-        width: 600,
-        height: 400
-      }); statsDiv.innerHTML = '<h2>Run Statistics</h2>'; drawTarget();
-    }
+    function drawTarget(){ctx.strokeStyle='red';ctx.beginPath();ctx.moveTo(target.x-10,target.y);ctx.lineTo(target.x+10,target.y);ctx.moveTo(target.x,target.y-10);ctx.lineTo(target.x,target.y+10);ctx.stroke();}
+    function drawFunnel(){if(!showFunnel)return;ctx.strokeStyle=colors[currentRule];ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(funnel.x,funnel.y,10,0,2*Math.PI);ctx.stroke();ctx.setLineDash([]);}
+    function drawHit(h){ctx.fillStyle=colors[currentRule];ctx.beginPath();ctx.arc(h.x,h.y,4,0,2*Math.PI);ctx.fill();}
+    function moveFunnel(h){switch(currentRule){case'2':funnel.x+=target.x-h.x;funnel.y+=target.y-h.y;break;case'3':funnel.x=2*target.x-h.x;funnel.y=2*target.y-h.y;break;case'4':funnel.x=h.x;funnel.y=h.y;break;}}
+    function drawEnclosingCircle(){const m=Math.max(...hits.map(h=>Math.hypot(h.x-target.x,h.y-target.y)));ctx.strokeStyle=colors[currentRule];ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(target.x,target.y,m,0,2*Math.PI);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=colors[currentRule];ctx.font='14px sans-serif';ctx.textAlign='center';let lx,ly; if(currentRule==='1'){lx=target.x;ly=target.y-m-12;ctx.textBaseline='bottom';} else if(currentRule==='2'){lx=target.x+m+12;ly=target.y;ctx.textAlign='left';ctx.textBaseline='middle';} else if(currentRule==='3'){lx=target.x;ly=target.y+m+12;ctx.textBaseline='top';} else {lx=target.x-m-12;ly=target.y;ctx.textAlign='right';ctx.textBaseline='middle';}ctx.fillText(`⌀ ${(2*m).toFixed(1)}`,lx,ly);}
+    function computeStats(){const d=hits.map(h=>Math.hypot(h.x-target.x,h.y-target.y));const mean=d.reduce((a,b)=>a+b,0)/d.length;const varc=d.reduce((a,b)=>a+(b-mean)**2,0)/d.length;const sd=Math.sqrt(varc),max=Math.max(...d);const pct1=(d.filter(v=>v<=sd).length/d.length*100).toFixed(1);const pct2=(d.filter(v=>v<=2*sd).length/d.length*100).toFixed(1);return{mean,sd,max,pct1,pct2};}
+    function updatePlot(){const traces=[];for(let r in allDistances){if(allDistances[r].length){traces.push({x:allDistances[r],type:'histogram',opacity:0.5,name:ruleNames[r],marker:{color:colors[r]},autobinx:false,xbins:{start:0,end:Math.max(...allDistances[r]),size:1}});} }Plotly.newPlot('plotlyHistogram',traces,{barmode:'overlay',width:600,height:400,title:'Distribution of Marble Distances'});}
+    function recordStats(){const s=computeStats();const e=document.createElement('div');e.className='stat-entry';e.innerHTML=`<div class='entry-title' style='color:${colors[currentRule]}'>${ruleNames[currentRule]}</div><div>Mean: ${s.mean.toFixed(1)}</div><div>SD: ${s.sd.toFixed(1)}</div><div>Max: ${s.max.toFixed(1)}</div><div>% ≤1σ: ${s.pct1}%</div><div>% ≤2σ: ${s.pct2}%</div>`;statsDiv.appendChild(e);}
+    function dropMarble(){if(currentDrop>=totalDrops){clearInterval(intervalId);drawEnclosingCircle();allDistances[currentRule]=hits.map(h=>Math.hypot(h.x-target.x,h.y-target.y));updatePlot();recordStats();return;}drawFunnel();const sigma=parseFloat(sigmaSlider.value),noiseModel=noiseModelSelect.value;let dx,dy;if(noiseModel==='truncated_drift'){const d=driftedNoise(sigma);dx=d.x;dy=d.y;}else{dx=gaussian(0,sigma);dy=gaussian(0,sigma);}const hit={x:funnel.x+dx,y:funnel.y+dy};hits.push(hit);drawHit(hit);moveFunnel(hit);currentDrop++;}
+    function start(){if(intervalId)clearInterval(intervalId);currentRule=ruleSelect.value;totalDrops=parseInt(dropsInput.value,10);currentDrop=0;hits=[];funnel={...target};allDistances[currentRule]=[];drawTarget();intervalId=setInterval(dropMarble,parseInt(intervalInput.value,10));}
+    function pause(){if(intervalId)clearInterval(intervalId);}
+    function reset(){if(intervalId)clearInterval(intervalId);currentDrop=0;hits=[];funnel={...target};ctx.clearRect(0,0,canvas.width,canvas.height);for(let r in allDistances)allDistances[r]=[];Plotly.purge('plotlyHistogram');document.getElementById('plotlyHistogram').innerHTML='';statsDiv.innerHTML='<h2>Run Statistics</h2>';drawTarget();}
+    // init
     reset();
   </script>
 </body>
-
 </html>
