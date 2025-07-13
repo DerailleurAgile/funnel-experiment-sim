@@ -17,10 +17,22 @@
     #stats h2 { margin:0 0 8px; font-size:16px; border-bottom:1px solid #ddd; padding-bottom:4px; }
     .stat-entry { margin-bottom:12px; font-size:14px; }
     .entry-title { font-weight:bold; }
-    #visuals { flex:1; padding:16px; overflow:auto; text-align:center; }
+    #visuals {
+      flex: 1;
+      padding: 16px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
     #mainTitle { font-size:24px; margin:0 0 16px; }
     #canvas { border:1px solid #ccc; }
-    #plotlyHistogram { margin-top:16px; width:100%; max-width:600px; height:400px; }
+    #plotlyHistogram {
+      margin: 16px auto 0; /* centered under canvas */
+      width: 100%;
+      max-width: 600px;
+      height: 400px;
+    }
   </style>
 </head>
 <body>
