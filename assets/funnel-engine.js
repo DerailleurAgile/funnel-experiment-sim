@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("configForm");
   const statsDiv = document.getElementById("stats");
 
+  // Scale factor based on original 600px reference
+  const scaleFactor = Math.min(canvas.width, canvas.height) / 600;
+
   // Simulation state
   let showFunnel = false;
   let config = {};
@@ -47,13 +50,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Drawing helpers
   function drawTargetCross() {
+    const len = 10 * scaleFactor;
     ctx.save();
     ctx.strokeStyle = "red";
+    ctx.lineWidth = 1 * scaleFactor;
     ctx.beginPath();
-    ctx.moveTo(target.x - 10, target.y);
-    ctx.lineTo(target.x + 10, target.y);
-    ctx.moveTo(target.x, target.y - 10);
-    ctx.lineTo(target.x, target.y + 10);
+    ctx.moveTo(target.x - len, target.y);
+    ctx.lineTo(target.x + len, target.y);
+    ctx.moveTo(target.x, target.y - len);
+    ctx.lineTo(target.x, target.y + len);
     ctx.stroke();
     ctx.restore();
   }
@@ -63,19 +68,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function drawFunnel() {
     if (!showFunnel) return;
+    const r = 10 * scaleFactor;
     ctx.save();
     ctx.strokeStyle = colors[currentRule];
-    ctx.setLineDash([3, 3]);
+    ctx.lineWidth = 1.5 * scaleFactor;
+    ctx.setLineDash([3 * scaleFactor, 3 * scaleFactor]);
     ctx.beginPath();
-    ctx.arc(funnel.x, funnel.y, 10, 0, 2 * Math.PI);
+    ctx.arc(funnel.x, funnel.y, r, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.restore();
   }
   function drawHit(h) {
+    const r = 4 * scaleFactor;
     ctx.save();
     ctx.fillStyle = colors[currentRule];
     ctx.beginPath();
-    ctx.arc(h.x, h.y, 4, 0, 2 * Math.PI);
+    ctx.arc(h.x, h.y, r, 0, 2 * Math.PI);
     ctx.fill();
     ctx.restore();
   }
@@ -90,21 +98,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const m = Math.max(...hits.map(h => Math.hypot(h.x - target.x, h.y - target.y)));
     ctx.save();
     ctx.strokeStyle = colors[currentRule];
-    ctx.setLineDash([5, 5]);
+    ctx.lineWidth = 1.5 * scaleFactor;
+    ctx.setLineDash([5 * scaleFactor, 5 * scaleFactor]);
     ctx.beginPath();
     ctx.arc(target.x, target.y, m, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = colors[currentRule];
-    ctx.font = "14px sans-serif";
+    ctx.font = `${14 * scaleFactor}px sans-serif`;
     ctx.textAlign = "center";
     let lx, ly;
-    if (currentRule === "1") { lx = target.x; ly = target.y - m - 12; ctx.textBaseline = "bottom"; }
-    else if (currentRule === "2") { lx = target.x + m + 12; ly = target.y; ctx.textAlign = "left"; ctx.textBaseline = "middle"; }
-    else if (currentRule === "3") { lx = target.x; ly = target.y + m + 12; ctx.textBaseline = "top"; }
-    else { lx = target.x - m - 12; ly = target.y; ctx.textAlign = "right"; ctx.textBaseline = "middle"; }
-    const labelOffset = 16;
-    let ruleLabelY = (currentRule === "3") ? ly + labelOffset : ly - labelOffset;
+    if (currentRule === "1") { lx = target.x; ly = target.y - m - 12 * scaleFactor; ctx.textBaseline = "bottom"; }
+    else if (currentRule === "2") { lx = target.x + m + 12 * scaleFactor; ly = target.y; ctx.textAlign = "left"; ctx.textBaseline = "middle"; }
+    else if (currentRule === "3") { lx = target.x; ly = target.y + m + 12 * scaleFactor; ctx.textBaseline = "top"; }
+    else { lx = target.x - m - 12 * scaleFactor; ly = target.y; ctx.textAlign = "right"; ctx.textBaseline = "middle"; }
+    const ruleLabelY = (currentRule === "3") ? ly + 16 * scaleFactor : ly - 16 * scaleFactor;
     ctx.fillText(ruleNames[currentRule], lx, ruleLabelY);
     ctx.fillText(`⌀ ${(2 * m).toFixed(1)}`, lx, ly);
     ctx.restore();
