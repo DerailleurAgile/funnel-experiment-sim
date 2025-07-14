@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const colors = { 1: "#1f77b4", 2: "#ff7f0e", 3: "#2ca02c", 4: "#d62728" };
   const ruleNames = { 1: "Rule 1", 2: "Rule 2", 3: "Rule 3", 4: "Rule 4" };
   const allDistances = { 1: [], 2: [], 3: [], 4: [] };
+  let masterHits = [];
 
   // Delegate form events
   form.addEventListener("input", e => {
@@ -30,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.id === "startBtn") start();
     else if (e.target.id === "pauseBtn") pause();
     else if (e.target.id === "resetBtn") reset();
+    else if (e.target.id === "exportBtn") exportCSV();
   });
 
   // Noise generators
@@ -176,6 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const hit = { x: funnel.x + dx, y: funnel.y + dy };
     hits.push(hit);
+    masterHits.push(hit);
     drawHit(hit);
     moveFunnel(hit);
     currentDrop++;
@@ -210,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (intervalId) clearInterval(intervalId);
     currentDrop = 0;
     hits = [];
+    masterHits = [];
     funnel = { ...target };
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let r in allDistances) allDistances[r] = [];
@@ -217,6 +221,29 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("plotlyHistogram").innerHTML = "";
     statsDiv.innerHTML = "";
     drawTarget();
+  }
+
+  function exportCSV() {
+    // Build an array of distances (in px) from target, with a 1-based index
+    const rows = masterHits.map((h, idx) => {
+        const dist = Math.hypot(h.x - target.x, h.y - target.y).toFixed(2);
+        return `${idx + 1},${dist}`;
+    });
+
+    // Prepend header row
+    rows.unshift("Index,Distance(px)");
+
+    // Join into one string and encode
+    const csvContent = "data:text/csv;charset=utf-8," + rows.join("\n");
+    const encoded = encodeURI(csvContent);
+
+    // Create a temporary link, click it, then remove it
+    const link = document.createElement("a");
+    link.setAttribute("href", encoded);
+    link.setAttribute("download", "marble_distances.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   // Initialize
