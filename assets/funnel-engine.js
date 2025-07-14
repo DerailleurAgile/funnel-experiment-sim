@@ -108,6 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillText(ruleNames[currentRule], lx, ruleLabelY);
     ctx.fillText(`⌀ ${(2 * m).toFixed(1)}`, lx, ly);
     ctx.restore();
+    // Re-draw target cross so it remains visible
+    drawTargetCross();
   }
 
   // Statistics & plotting
