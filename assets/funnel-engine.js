@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.restore();
   }
   function drawHit(h) {
-    const r = 2 * scaleFactor;
+    const r = 3 * scaleFactor;
     ctx.save();
     ctx.fillStyle = colors[currentRule];
     ctx.beginPath();
