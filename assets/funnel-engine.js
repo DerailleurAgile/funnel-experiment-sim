@@ -127,7 +127,14 @@ document.addEventListener("DOMContentLoaded", () => {
         traces.push({ x: allDistances[r], type: "histogram", opacity: 0.5, name: ruleNames[r], marker: { color: colors[r] }, autobinx: false, xbins: { start: 0, end: Math.max(...allDistances[r]), size: 1 } });
       }
     }
-    Plotly.newPlot("plotlyHistogram", traces, { barmode: "overlay", width: 600, height: 400, title: "Distribution of Marble Distances from Target" });
+    const layout = {
+      barmode: "overlay",
+      title: "Distribution of Marble Distances from Target",
+      autosize: true,
+      margin: { t: 40, l: 40, r: 40, b: 40 }
+    };
+    const config = { responsive: true };
+    Plotly.newPlot("plotlyHistogram", traces, layout, config);
   }
   function recordStats() {
     const s = computeStats();
