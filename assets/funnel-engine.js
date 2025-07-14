@@ -141,7 +141,9 @@ document.addEventListener("DOMContentLoaded", () => {
       barmode: "overlay",
       title: "Distribution of Marble Distances from Target",
       autosize: true,
-      margin: { t: 40, l: 40, r: 40, b: 40 }
+      margin: { t: 40, l: 40, r: 40, b: 40 },
+      xaxis: { title: "Distance from Target (px)" },
+      yaxis: { title: "Counts" }
     };
     const config = { responsive: true };
     Plotly.newPlot("plotlyHistogram", traces, layout, config);
