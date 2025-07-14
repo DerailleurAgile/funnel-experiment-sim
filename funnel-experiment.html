@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Deming Funnel Simulator</title>
+  <title>Deming Funnel Experiment Simulator</title>
   <!-- Bootstrap CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -20,6 +20,7 @@
       <!-- Controls (Left Column) -->
       <div id="controls" class="col-12 col-md-3 p-3 border-end">
         <form id="configForm">
+          <!-- Rule Selector -->
           <div class="mb-4">
             <label for="rule" class="form-label">Rule:</label>
             <select id="rule" name="rule" class="form-select">
@@ -29,6 +30,13 @@
               <option value="4">Rule 4: Follow Last Drop</option>
             </select>
           </div>
+          <!-- Action Buttons moved under Rule -->
+          <div class="d-grid gap-2 mb-4">
+            <button id="startBtn" type="button" class="btn btn-primary">Start</button>
+            <button id="pauseBtn" type="button" class="btn btn-secondary">Pause</button>
+            <button id="resetBtn" type="button" class="btn btn-danger">Reset</button>
+          </div>
+          <!-- Other Controls -->
           <div class="mb-4">
             <label for="sigma" class="form-label">Noise σ:</label>
             <input id="sigma" name="sigma" type="range" class="form-range" min="1" max="100" value="20">
@@ -53,9 +61,6 @@
             <input id="showFunnel" name="showFunnel" class="form-check-input" type="checkbox" value="show">
             <label for="showFunnel" class="form-check-label">Show Funnel Position</label>
           </div>
-          <button id="startBtn" type="button" class="btn btn-primary w-100 mb-2">Start</button>
-          <button id="pauseBtn" type="button" class="btn btn-secondary w-100 mb-2">Pause</button>
-          <button id="resetBtn" type="button" class="btn btn-danger w-100 mb-4">Reset</button>
         </form>
       </div>
       <!-- Marble Plot & Chart Area (Right Column) -->
@@ -86,9 +91,9 @@
     integrity="sha384-..."
     crossorigin="anonymous"
   ></script>
-  <!-- Custom JS -->
-  <!-- Plotly JS (must come before your funnel-engine.js) -->
+  <!-- Plotly JS -->
   <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+  <!-- Custom JS -->
   <script src="assets/funnel-engine.js"></script>
 </body>
 </html>
