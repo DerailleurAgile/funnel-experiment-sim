@@ -253,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
     Plotly.purge("plotlyHistogram");
     document.getElementById("plotlyHistogram").innerHTML = "";
     statsDiv.innerHTML = "";
-    //clearRunChart();
+    clearRunChart();
     Plotly.purge('plotlyRunChart');
     initRunChart();
     drawTarget();
