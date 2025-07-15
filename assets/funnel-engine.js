@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Let's track cumulative run chart data here...
   const runChartData = { x: [], y: []};
+  let runCount = 0;
 
   // Delegate form events
   form.addEventListener("input", e => {
@@ -157,21 +158,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Record cumulative runchart stats
   function recordRunChartStats() {
-    // Compute raw distances for this run
-    const rawDistances = hits.map(h => Math.hypot(h.x - target.x, h.y - target.y));
-
-    // Append to buffers
-    rawDistances.forEach(dist => {
-      runChartData.x.push(runChartData.x.length + 1);
-      runChartData.y.push(dist);
+    runCount++;  
+    const rawDistances = hits.map(h =>
+        Math.hypot(h.x - target.x, h.y - target.y)
+    );
+    const color = colors[currentRule];
+    
+    // 1) Figure out the X–axis positions *before* you touch runChartData
+    const offset = runChartData.x.length;
+    const x = rawDistances.map((_, i) => offset + i + 1);
+    const y = rawDistances;
+    
+    // 2) Append to your cumulative buffers
+    runChartData.x = runChartData.x.concat(x);
+    runChartData.y = runChartData.y.concat(y);
+    
+    // 3) Add a new trace using the freshly‑computed x & y
+    Plotly.addTraces('plotlyRunChart', {
+        x,
+        y,
+        mode: 'markers+lines',
+        name: `${ruleNames[currentRule]} Run ${runCount}`,
+        marker: { color },
+        line:   { shape: 'linear', color }
     });
+}
 
-    // Update chart with cumulative data
-    Plotly.update('plotlyRunChart', {
-      x: [runChartData.x],
-      y: [runChartData.y]
-    });
-  }
 
   function initRunChart() {
     const layout = {
@@ -186,7 +198,8 @@ document.addEventListener("DOMContentLoaded", () => {
         y: runChartData.y,
         mode: 'markers+lines',
         name: 'Distance',
-        line: { shape: 'linear'}
+        marker: { color: colors[currentRule] },
+        line:   { shape: 'linear', color: colors[currentRule] }
     }], layout, { responsive: true});
 
   }
