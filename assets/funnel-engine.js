@@ -186,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   function initRunChart() {
+    runCount = 0;
     const layout = {
         title: 'Distance from Target',
         xaxis: { title: 'Drop #'},
