@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const statsDiv = document.getElementById("stats");
 
   // Scale factor based on original 600px reference
-  const scaleFactor = Math.min(canvas.width, canvas.height) / 600;
+  const scaleFactor = Math.min(canvas.width, canvas.height) / 800;
 
   // Simulation state
   let showFunnel = false;
@@ -130,7 +130,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const sd = Math.sqrt(varc), max = Math.max(...d);
     const pct1 = ((d.filter(v => v <= sd).length / d.length) * 100).toFixed(1);
     const pct2 = ((d.filter(v => v <= 2 * sd).length / d.length) * 100).toFixed(1);
-    return { mean, sd, max, pct1, pct2 };
+    const pct3 = ((d.filter(v => v <= 3 * sd).length / d.length) * 100).toFixed(1);
+    return { mean, sd, max, pct1, pct2, pct3 };
   }
   function updatePlot() {
     const traces = [];
@@ -154,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const s = computeStats();
     const e = document.createElement("div");
     e.className = "stat-entry";
-    e.innerHTML = `<div class='entry-title' style='color:${colors[currentRule]}'>${ruleNames[currentRule]}</div><div>Mean: ${s.mean.toFixed(1)}</div><div>SD: ${s.sd.toFixed(1)}</div><div>Max: ${s.max.toFixed(1)}</div><div>% ≤1σ: ${s.pct1}%</div><div>% ≤2σ: ${s.pct2}%</div>`;
+    e.innerHTML = `<div class='entry-title' style='color:${colors[currentRule]}'>${ruleNames[currentRule]}</div><div>Mean: ${s.mean.toFixed(1)}</div><div>SD: ${s.sd.toFixed(1)}</div><div>Max: ${s.max.toFixed(1)}</div><div>% ≤1σ: ${s.pct1}%</div><div>% ≤2σ: ${s.pct2}%</div><div>% ≤3σ: ${s.pct3}%</div>`;
     statsDiv.appendChild(e);
   }
 
