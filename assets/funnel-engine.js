@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const allDistances = { 1: [], 2: [], 3: [], 4: [] };
   let masterHits = [];
 
+  // Let's track cumulative run chart data here...
+  const runChartData = { x: [], y: []};
+
   // Delegate form events
   form.addEventListener("input", e => {
     if (e.target.id === "sigma") {
@@ -151,12 +154,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = { responsive: true };
     Plotly.newPlot("plotlyHistogram", traces, layout, config);
   }
-  function recordStats() {
-    const s = computeStats();
-    const e = document.createElement("div");
-    e.className = "stat-entry";
-    e.innerHTML = `<div class='entry-title' style='color:${colors[currentRule]}'>${ruleNames[currentRule]}</div><div>Mean: ${s.mean.toFixed(1)}</div><div>SD: ${s.sd.toFixed(1)}</div><div>Max: ${s.max.toFixed(1)}</div><div>% ≤1σ: ${s.pct1}%</div><div>% ≤2σ: ${s.pct2}%</div><div>% ≤3σ: ${s.pct3}%</div>`;
-    statsDiv.appendChild(e);
+
+  // Record cumulative runchart stats
+  function recordRunChartStats() {
+    // Compute raw distances for this run
+    const rawDistances = hits.map(h => Math.hypot(h.x - target.x, h.y - target.y));
+
+    // Append to buffers
+    rawDistances.forEach(dist => {
+      runChartData.x.push(runChartData.x.length + 1);
+      runChartData.y.push(dist);
+    });
+
+    // Update chart with cumulative data
+    Plotly.update('plotlyRunChart', {
+      x: [runChartData.x],
+      y: [runChartData.y]
+    });
+  }
+
+  function initRunChart() {
+    const layout = {
+        title: 'Distance from Target',
+        xaxis: { title: 'Drop #'},
+        yaxis: { title: 'Distance'},
+        margin: { t: 40, l: 50, r: 20, b:40}
+    };
+
+    Plotly.newPlot('plotlyRunChart', [{
+        x: runChartData.x,
+        y: runChartData.y,
+        mode: 'markers+lines',
+        name: 'Distance',
+        line: { shape: 'linear'}
+    }], layout, { responsive: true});
+
   }
 
   // Core simulation step
@@ -166,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
       drawEnclosingCircle();
       allDistances[currentRule] = hits.map(h => Math.hypot(h.x - target.x, h.y - target.y));
       updatePlot();
-      recordStats();
+      recordRunChartStats();
       return;
     }
     drawFunnel();
@@ -221,7 +253,17 @@ document.addEventListener("DOMContentLoaded", () => {
     Plotly.purge("plotlyHistogram");
     document.getElementById("plotlyHistogram").innerHTML = "";
     statsDiv.innerHTML = "";
+    //clearRunChart();
+    Plotly.purge('plotlyRunChart');
+    initRunChart();
     drawTarget();
+  }
+
+  function clearRunChart() {
+    runChartData.x = [];
+    runChartData.y = [];
+    Plotly.purge('plotlyRunChart');
+    initRunChart();
   }
 
   function exportCSV() {
@@ -249,4 +291,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize
   reset();
+  initRunChart();
 });
