@@ -42,7 +42,12 @@
       <!-- Controls (Left Column) -->
       <div id="controls" class="col-12 col-md-3 p-3 border-end">
         <a href="https://digestibledeming.substack.com/p/lessons-of-the-funnel" target="_blank">
-          <img src="assets/dd_logo.png" alt="DD Logo" class="img-fluid mb-3" style="max-width:100%;">
+          <img 
+            src="assets/dd_logo.png" 
+            alt="DD Logo" 
+            title="Click here to learn more about The Lessons of the Funnel"
+            class="img-fluid mb-3" 
+            style="max-width:100%;">
         </a>
         <h3 class="mb-4">Funnel Experiment Simulation</h3>
         <form id="configForm">
@@ -131,5 +136,31 @@
   <script src="https://unpkg.com/@panzoom/panzoom/dist/panzoom.min.js"></script>
   <!-- Custom JS -->
   <script src="assets/funnel-engine.js"></script>
+  <!-- Panzoom Initialization -->
+  <script>
+    window.addEventListener('load', () => {
+      const viewport = document.getElementById('viewport');
+      const canvas = document.getElementById('canvas');
+      const panzoomInstance = Panzoom(canvas, {
+        maxScale: 5,
+        minScale: 0.1,
+        contain: false
+      });
+      // Center the canvas on the target cross (middle of canvas)
+      const targetX = canvas.width / 2;
+      const targetY = canvas.height / 2;
+      const offsetX = (viewport.clientWidth / 2) - targetX;
+      const offsetY = (viewport.clientHeight / 2) - targetY;
+      panzoomInstance.zoom(1, { relative: false });
+      panzoomInstance.pan(offsetX, offsetY, { relative: false });
+      // Enable pointer drag
+      canvas.addEventListener('pointerdown', panzoomInstance.handleDown);
+      // Enable wheel zoom
+      viewport.addEventListener('wheel', ev => {
+        ev.preventDefault();
+        panzoomInstance.zoomWithWheel(ev);
+      }, { passive: false });
+    });
+  </script>
 </body>
 </html>

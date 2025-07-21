@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.save();
     ctx.fillStyle = colors[currentRule];
     ctx.beginPath();
-    ctx.arc(h.x, h.y, r, 0, 2 * Math.PI);
+    ctx.arc(h.x, h.y, r, 0, 1.75 * Math.PI);
     ctx.fill();
     ctx.restore();
   }
