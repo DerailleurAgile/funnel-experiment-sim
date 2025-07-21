@@ -53,12 +53,12 @@
         <form id="configForm">
           <!-- Rule Selector -->
           <div class="mb-4">
-            <label for="rule" class="form-label">Rule:</label>
+            <label for="rule" class="form-label">Funnel Experiment Rule:</label>
             <select id="rule" name="rule" class="form-select">
-              <option value="1">Rule 1: No Adjustment</option>
+              <option value="1">Rule 1: No Adjustments!</option>
               <option value="2">Rule 2: Compensate from Last Position</option>
               <option value="3">Rule 3: Compensate from Last Distance to Target</option>
-              <option value="4">Rule 4: Follow Last Drop</option>
+              <option value="4">Rule 4: Follow Last Dropped Marble</option>
             </select>
           </div>
           <!-- Action Buttons moved under Rule -->
@@ -101,6 +101,16 @@
         <div class="card mb-4 text-center">
           <div class="card-body p-0" id="viewport">
             <canvas id="canvas" width="2000" height="1200" class="border"></canvas>
+            <div class="toast-container position-absolute top-50 start-50 translate-middle p-3">
+            <div id="zoomToast" class="toast align-items-center text-white bg-primary border-0" role="alert">
+              <div class="d-flex">
+                <div class="toast-body">
+                  New! Pinch or scroll to zoom, and drag to pan.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+              </div>
+            </div>
+          </div>
           </div>
         </div>
         <!-- Plotly Chart Card -->
@@ -118,16 +128,6 @@
             <div id="stats"></div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="zoomToast" class="toast align-items-center text-white bg-primary border-0" role="alert">
-      <div class="d-flex">
-        <div class="toast-body">
-          New! Pinch or scroll to zoom, and drag to pan.
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
       </div>
     </div>
   </div>
