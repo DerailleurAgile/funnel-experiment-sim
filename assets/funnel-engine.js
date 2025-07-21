@@ -306,4 +306,5 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize
   reset();
   initRunChart();
+
 });
