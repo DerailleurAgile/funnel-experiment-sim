@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } else if (config.noiseModel === 'bounce_roll') {
       //console.log('  → Bounce then Roll branch');
-      const d = bounceThenRoll(s, s * 1.77, 3);
+      const d = bounceThenRoll(s, s * 1.57, 3);
       //console.log('     bounceThenRoll ->', d);
       dx = d.x; dy = d.y;
 
