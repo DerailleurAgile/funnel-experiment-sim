@@ -31,9 +31,9 @@
       touch-action: none;
       display: block;
     }
-    html {
+    /* html {
       zoom: 67%
-    }
+    } */
   </style>
 </head>
 <body>
@@ -74,6 +74,7 @@
             <select id="noiseModel" name="noiseModel" class="form-select">
               <option value="gaussian">Gaussian</option>
               <option value="truncated_drift">Truncated + Drift</option>
+              <option value="bounce_roll">Bounce then Roll</option>
             </select>
           </div>
           <div class="mb-4">
@@ -102,15 +103,15 @@
           <div class="card-body p-0" id="viewport">
             <canvas id="canvas" width="2000" height="1200" class="border"></canvas>
             <div class="toast-container position-absolute top-50 start-50 translate-middle p-3">
-            <div id="zoomToast" class="toast align-items-center text-white bg-primary border-0" role="alert">
-              <div class="d-flex">
-                <div class="toast-body">
-                  New! Pinch or scroll to zoom, and drag to pan.
+              <div id="zoomToast" class="toast align-items-center text-white bg-primary border-0" role="alert">
+                <div class="d-flex">
+                  <div class="toast-body">
+                    New! Pinch or scroll to zoom, and drag to pan.
+                  </div>
+                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
               </div>
             </div>
-          </div>
           </div>
         </div>
         <!-- Plotly Chart Card -->

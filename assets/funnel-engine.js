@@ -54,6 +54,18 @@ document.addEventListener("DOMContentLoaded", () => {
     return { x: drift.x + truncatedGaussian(0, baseSD, 3), y: drift.y + truncatedGaussian(0, baseSD, 3) };
   }
 
+  // NEW! I wanted to make the marbles more IRL, 
+  // with some bounce-n-roll to their action...
+  function bounceThenRoll(bounceSD=100, rollSD=30, rollSteps=3){
+    let x = truncatedGaussian(0, bounceSD, 3);
+    let y = truncatedGaussian(0, bounceSD, 3);
+    for(let i=0; i<rollSteps; i++){
+      x += truncatedGaussian(0, rollSD, 3);
+      y += truncatedGaussian(0, rollSD, 3);
+    }
+    return { x,y };
+  }
+
   // Drawing helpers
   function drawTargetCross() {
     const len = 10 * scaleFactor;
@@ -205,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   }
 
-  // Core simulation step
+  // Drop the marble!
   function dropMarble() {
     if (currentDrop >= totalDrops) {
       clearInterval(intervalId);
@@ -216,13 +228,33 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     drawFunnel();
-    const { sigma, noiseModel } = config;
-    let dx, dy;
-    if (noiseModel === "truncated_drift") {
-      const d = driftedNoise(sigma); dx = d.x; dy = d.y;
+    
+    const s = config.sigma;
+    //console.log('dropMarble: noiseModel=', config.noiseModel, 'σ=', s);
+
+    if (config.noiseModel === 'gaussian') {
+      //console.log('  → Gaussian branch');
+      dx = gaussian(0, s);
+      dy = gaussian(0, s);
+
+    } else if (config.noiseModel === 'truncated_drift') {
+      //console.log('  → Truncated + Drift branch');
+      const d = driftedNoise(s);
+      //console.log('     driftedNoise ->', d);
+      dx = d.x; dy = d.y;
+
+    } else if (config.noiseModel === 'bounce_roll') {
+      //console.log('  → Bounce then Roll branch');
+      const d = bounceThenRoll(s, s * 1.77, 3);
+      //console.log('     bounceThenRoll ->', d);
+      dx = d.x; dy = d.y;
+
     } else {
-      dx = gaussian(0, sigma); dy = gaussian(0, sigma);
+      //console.log('  → Fallback Gaussian branch');
+      dx = gaussian(0, s);
+      dy = gaussian(0, s);
     }
+
     const hit = { x: funnel.x + dx, y: funnel.y + dy };
     hits.push(hit);
     masterHits.push(hit);
@@ -266,6 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let r in allDistances) allDistances[r] = [];
     Plotly.purge("plotlyHistogram");
     document.getElementById("plotlyHistogram").innerHTML = "";
+    document.getElementById('sigmaValue').textContent = document.getElementById('sigma').value;
     statsDiv.innerHTML = "";
     clearRunChart();
     Plotly.purge('plotlyRunChart');
