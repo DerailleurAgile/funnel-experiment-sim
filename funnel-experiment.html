@@ -31,6 +31,9 @@
       touch-action: none;
       display: block;
     }
+    html {
+      zoom: 67%
+    }
   </style>
 </head>
 <body>
@@ -38,6 +41,10 @@
     <div class="row">
       <!-- Controls (Left Column) -->
       <div id="controls" class="col-12 col-md-3 p-3 border-end">
+        <a href="https://digestibledeming.substack.com/p/lessons-of-the-funnel" target="_blank">
+          <img src="assets/dd_logo.png" alt="DD Logo" class="img-fluid mb-3" style="max-width:100%;">
+        </a>
+        <h3 class="mb-4">Funnel Experiment Simulation</h3>
         <form id="configForm">
           <!-- Rule Selector -->
           <div class="mb-4">
@@ -85,10 +92,6 @@
       </div>
       <!-- Marble Plot & Chart Area (Right Column) -->
       <div id="marble-area" class="col-12 col-md-9 p-3 text-center">
-        <a href="https://digestibledeming.substack.com/p/lessons-of-the-funnel" target="_blank">
-            <img src="assets/dd_logo.png" alt="DD Logo" class="img-fluid" style="max-width:300px;">
-        </a>
-        <h3 class="mb-2">Funnel Experiment Simulation</h1>
         <!-- Marble Plot Viewport and Canvas -->
         <div class="card mb-4 text-center">
           <div class="card-body p-0" id="viewport">
