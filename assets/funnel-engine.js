@@ -307,4 +307,10 @@ document.addEventListener("DOMContentLoaded", () => {
   reset();
   initRunChart();
 
+  window.addEventListener('load', () => {
+    var toastEl = document.getElementById('zoomToast');
+    var toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+    toast.show();
+  });
+
 });
