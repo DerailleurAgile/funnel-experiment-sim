@@ -65,16 +65,16 @@
           </div>
           <!-- Other Controls -->
           <div class="mb-4">
-            <label for="sigma" class="form-label">Noise σ:</label>
-            <input id="sigma" name="sigma" type="range" class="form-range" min="1" max="100" value="20">
-            <div id="sigmaValue"></div>
-          </div>
-          <div class="mb-4">
             <label for="noiseModel" class="form-label">Noise Model:</label>
             <select id="noiseModel" name="noiseModel" class="form-select">
               <option value="gaussian">Gaussian</option>
               <option value="truncated_drift">Truncated + Drift</option>
             </select>
+          </div>
+          <div class="mb-4">
+            <label for="sigma" class="form-label">Marble Wandering Noise σ:</label>
+            <input id="sigma" name="sigma" type="range" class="form-range" min="1" max="100" value="20">
+            <div id="sigmaValue"></div>
           </div>
           <div class="mb-4">
             <label for="drops" class="form-label">Drops:</label>
