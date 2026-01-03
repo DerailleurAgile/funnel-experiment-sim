@@ -25,11 +25,9 @@
       height: 700px;
     }
     #canvas {
-      transform-origin: 0 0;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
+      /* touch-action: none; */
       display: block;
+      transform-origin: 0 0 !important;
     }
     /* html {
       zoom: 67%
@@ -99,19 +97,9 @@
       <!-- Marble Plot & Chart Area (Right Column) -->
       <div id="marble-area" class="col-12 col-md-9 p-3 text-center">
         <!-- Marble Plot Viewport and Canvas -->
-        <div class="card mb-4 text-center">
+        <div class="card mb-4">
           <div class="card-body p-0" id="viewport">
-            <canvas id="canvas" width="2000" height="1200" class="border"></canvas>
-            <div class="toast-container position-absolute top-50 start-50 translate-middle p-3">
-              <div id="zoomToast" class="toast align-items-center text-white bg-primary border-0" role="alert">
-                <div class="d-flex">
-                  <div class="toast-body">
-                    New! Pinch or scroll to zoom, and drag to pan.
-                  </div>
-                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-              </div>
-            </div>
+            <canvas id="canvas" width="4000" height="2400" class="border"></canvas>
           </div>
         </div>
         <!-- Plotly Chart Card -->
@@ -151,26 +139,35 @@
   <script>
     window.addEventListener('load', () => {
       const viewport = document.getElementById('viewport');
-      const canvas = document.getElementById('canvas');
-      const panzoomInstance = Panzoom(canvas, {
-        maxScale: 5,
-        minScale: 0.1,
-        contain: false
-      });
-      // Center the canvas on the target cross (middle of canvas)
-      const targetX = canvas.width / 2;
-      const targetY = canvas.height / 2;
-      const offsetX = (viewport.clientWidth / 2) - targetX;
-      const offsetY = (viewport.clientHeight / 2) - targetY;
-      panzoomInstance.zoom(1, { relative: false });
-      panzoomInstance.pan(offsetX, offsetY, { relative: false });
-      // Enable pointer drag
-      canvas.addEventListener('pointerdown', panzoomInstance.handleDown);
-      // Enable wheel zoom
-      viewport.addEventListener('wheel', ev => {
-        ev.preventDefault();
-        panzoomInstance.zoomWithWheel(ev);
-      }, { passive: false });
+      const canvas   = document.getElementById('canvas');
+
+      // expose center for pan
+      window.target = { x: canvas.width/2, y: canvas.height/2 };
+
+      // dimensions
+      const worldW = canvas.width, worldH = canvas.height;
+      const viewW  = viewport.clientWidth, viewH = viewport.clientHeight;
+
+      // zoom bounds & detail scale
+      const fitScale     = Math.min(viewW/worldW, viewH/worldH);
+      const detailRegion = 800;
+      const initialScale = Math.min(viewW/detailRegion, viewH/detailRegion);
+
+      // ensure transform-origin
+      canvas.style.transformOrigin = '0 0';
+
+      // init Panzoom
+      const panzoom = Panzoom(canvas, { maxScale:5, minScale:fitScale, contain:false });
+
+      // zoom and pan
+      panzoom.zoom(initialScale, { relative: false });
+      const panX = (viewW/2) - (window.target.x * initialScale);
+      const panY = (viewH/2) - (window.target.y * initialScale);
+      panzoom.pan(panX, panY, { relative: false });
+
+      // interactions
+      canvas.addEventListener('pointerdown', panzoom.handleDown);
+      viewport.addEventListener('wheel', ev => { ev.preventDefault(); panzoom.zoomWithWheel(ev); }, { passive:false });
     });
   </script>
 </body>

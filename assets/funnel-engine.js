@@ -1,6 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Element references
   const canvas = document.getElementById("canvas");
+
+  console.log(
+    `Buffer: ${canvas.width}×${canvas.height}, ` +
+    `Display: ${canvas.clientWidth}×${canvas.clientHeight}`
+  );
+
   const ctx = canvas.getContext("2d");
   const form = document.getElementById("configForm");
   const statsDiv = document.getElementById("stats");
@@ -14,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let funnel, hits, currentDrop, totalDrops, intervalId, currentRule;
   let drift = { x: 0, y: 0 };
   const target = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.target = target;
   const colors = { 1: "#1f77b4", 2: "#ff7f0e", 3: "#2ca02c", 4: "#d62728" };
   const ruleNames = { 1: "Rule 1", 2: "Rule 2", 3: "Rule 3", 4: "Rule 4" };
   const allDistances = { 1: [], 2: [], 3: [], 4: [] };
@@ -245,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } else if (config.noiseModel === 'bounce_roll') {
       //console.log('  → Bounce then Roll branch');
-      const d = bounceThenRoll(s, s * 1.57, 3);
+      const d = bounceThenRoll(s *0.57, s * 1.57, 3);
       //console.log('     bounceThenRoll ->', d);
       dx = d.x; dy = d.y;
 
